@@ -4,6 +4,7 @@ const BIRD_SIZE = 35;
 const BIRD_JUMP = 30;
 const birdXcenter = (window.innerWidth - BIRD_SIZE) / 2;
 const birdYcenter = (window.innerHeight - BIRD_SIZE) / 2;
+let timeSinceLastJump = 0;
 
 const bird = document.querySelector("[data-bird]");
 
@@ -12,6 +13,13 @@ export function setupBird() {
     setBirdPosition(birdXcenter, birdYcenter);
     // add event listners
     document.removeEventListener("keyup", moveBird);
+    document.addEventListener("keyup", moveBird);
+}
+
+export function pauseBird() {
+    document.removeEventListener("keyup", moveBird);
+}
+export function resumeBird() {
     document.addEventListener("keyup", moveBird);
 }
 
@@ -25,6 +33,41 @@ export function getBirdPosition() {
     let x = parseFloat(getComputedStyle(bird).getPropertyValue("--bird-left"));
     let y = parseFloat(getComputedStyle(bird).getPropertyValue("--bird-top"));
     return [x, y];
+}
+
+function generateRandomNumberFromTwo(min, max) {
+    return Math.floor(( Math.random() * (max-min) ) + min);
+}
+
+export function isBirdInNest() {
+    let [x,y] = getBirdPosition();
+    console.log("Pos x: ", x, "Pos y: ", y);
+}
+
+export function randomBirdMove( delta, pause ) {
+    if (pause) return null
+
+    let [x,y] = getBirdPosition();
+    let randomDirection = generateRandomNumberFromTwo(0,3)
+    if (timeSinceLastJump > 500) {
+        switch (randomDirection) {
+            case 0:
+                setBirdPosition(x, y-BIRD_JUMP);
+                break;
+            case 1:
+                setBirdPosition(x, y+BIRD_JUMP);
+                break;
+            case 2:
+                setBirdPosition(x-BIRD_JUMP, y);
+                break;
+            case 3:
+                setBirdPosition(x+BIRD_JUMP, y);
+                break;
+            default: return null;
+        }
+        timeSinceLastJump = 0;
+    }
+    timeSinceLastJump += delta;
 }
 
 export function moveBird(event) {

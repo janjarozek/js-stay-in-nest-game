@@ -1,8 +1,6 @@
 *, *::after, *::before {
     --game-font: 'Pacifico', cursive;
     --game-color: hsl(200, 50%, 50%);
-    --nest-width: 80;
-    --nest-height: 80;
     margin: 0;
 }
 
@@ -27,6 +25,8 @@
 }
 
 .nest {
+    --nest-width: 80;
+    --nest-height: 80;
     background-color: white;
     border: .5rem solid var(--game-color);
     box-shadow:

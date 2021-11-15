@@ -1,4 +1,5 @@
 import { setupBird, randomBirdMove, resumeBird, pauseBird, isBirdInNest } from "./bird.js";
+import { setupNest } from "./nest.js";
 
 // document.addEventListener("keyup", logKey);
 // function logKey(e) {
@@ -8,12 +9,12 @@ import { setupBird, randomBirdMove, resumeBird, pauseBird, isBirdInNest } from "
 document.addEventListener("keyup", startGame);
 // document.addEventListener("keyup", startGame, { once: true });
 
-const nest = document.querySelector("[data-nest]");
 const score = document.querySelector("[data-score]");
+const nestElem = document.querySelector("[data-nest");
 
 var gameTime = 0;
 let gameIntervalTimer;
-let gameStarted = false;
+let gameRunning = false;
 let gamePaused = false;
 
 let lastTime = null
@@ -21,18 +22,18 @@ function updateLoop(currentLoopTime) {
     //  handle jump into loop
     if ( lastTime === null ) {
         lastTime = currentLoopTime;
-        gameStarted = true;
+        gameRunning = true;
         window.requestAnimationFrame(updateLoop);
         return
     }
     // calc the delta time and handle changes accordingly
     const delta = currentLoopTime - lastTime;
     // handle game logic based on the time flow ...
-    // console.log("Pause: ",gamePaused, " Running: ",gameStarted);
+    // console.log("Pause: ",gamePaused, " Running: ",gameRunning);
     if(!gamePaused) {
         score.innerHTML = `Your time: ${gameTime}`;
         randomBirdMove(delta, gamePaused);
-        isBirdInNest();
+        if(!isBirdInNest()) return handleEndGame();
     } else {
         score.innerHTML = `Game paused! Click space to resume.`;
     }
@@ -42,16 +43,17 @@ function updateLoop(currentLoopTime) {
 }
 
 function startGame(event) {
-    if (event.code === 'Space' && gameStarted === true && gamePaused === true) {
+    if (event.code === 'Space' && gameRunning === true && gamePaused === true) {
         gamePaused = false;
         resumeBird();
         gameTimeCounter();
     }
-    if (event.code === 'Space' && gameStarted === false && gamePaused === false) {
+    if (event.code === 'Space' && gameRunning === false && gamePaused === false) {
         setupBird();
+        setupNest();
         gameTimeCounter();
     }
-    if (event.key === 'Escape' && gameStarted === true) {
+    if (event.key === 'Escape' && gameRunning === true) {
         pauseBird();
         gamePause();
     }
@@ -71,8 +73,27 @@ function gamePause() {
     document.addEventListener("keyup", unpauseGame, { once: true });
 }
 
+function handleEndGame() {
+    nestElem.style.setProperty("display", "none");
+    score.innerHTML = `Your final score: ${gameTime}`;
+    gameRunning = false;
+    lastTime = null;
+    clearInterval(gameIntervalTimer);
+    document.removeEventListener("keyup", unpauseGame, { once: true });
+    document.removeEventListener("keyup", startGame);
+
+    // const containerDiv = document.querySelector("[data-container]");
+    // const btn = document.createElement("button");
+    // btn.type = "button";
+    // btn.name = "restartBtn";
+    // btn.onclick = function () {
+    //     startGame()
+    //   };
+    // btn.innerHTML = "RESTART";
+    // containerDiv.appendChild(btn);
+}
+
 function gameReset() {
-    gameStarted = false;
     gameTime = 0;
     gamePause();
     document.addEventListener("keyup", unpauseGame, { once: true });

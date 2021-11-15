@@ -1,7 +1,9 @@
+import { nest } from "./nest.js";
+
 const arrows = ["ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
 
-const BIRD_SIZE = 35;
-const BIRD_JUMP = 30;
+const BIRD_SIZE = 30;
+const BIRD_JUMP = 20;
 const birdXcenter = (window.innerWidth - BIRD_SIZE) / 2;
 const birdYcenter = (window.innerHeight - BIRD_SIZE) / 2;
 let timeSinceLastJump = 0;
@@ -41,7 +43,25 @@ function generateRandomNumberFromTwo(min, max) {
 
 export function isBirdInNest() {
     let [x,y] = getBirdPosition();
-    console.log("Pos x: ", x, "Pos y: ", y);
+    let borderLeft = Math.ceil((window.innerWidth - (window.innerWidth * (nest.NEST_WIDTH/100))) / 2);
+    let borderRight = Math.ceil((window.innerWidth * (nest.NEST_WIDTH/100)) + (window.innerWidth - (window.innerWidth * (nest.NEST_WIDTH/100))) / 2);
+    let borderTop = Math.ceil((window.innerHeight - (window.innerHeight * (nest.NEST_HEIGHT/100))) / 2);
+    let borderBottom = Math.ceil((window.innerHeight * (nest.NEST_HEIGHT/100)) + (window.innerHeight - (window.innerHeight * (nest.NEST_HEIGHT/100))) / 2);
+
+    let birdBorderTop = Math.ceil(y - BIRD_SIZE);
+    let birdBorderBottom = Math.ceil(y);
+    let birdBorderLeft = Math.ceil(x);
+    let birdBorderRight = Math.ceil(x + BIRD_SIZE);
+
+    if (birdBorderTop < borderTop ||
+        birdBorderBottom > borderBottom ||
+        birdBorderLeft < borderLeft ||
+        birdBorderRight > borderRight) {
+        return false;
+    } else {
+        return true;
+    }
+
 }
 
 export function randomBirdMove( delta, pause ) {
